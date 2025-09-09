@@ -323,13 +323,36 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
     @Override
     public void signup(SignupRequest request) {
         String masterToken = getMasterToken();
-        createRealm(request.getRealmName(), masterToken);
-        String clientUUID = createClient(request.getRealmName(), request.getClientId(), request.isPublicClient(), masterToken);
+
+        // ---------------- STEP 1: Handle product selection ----------------
+        String realmName = request.getRealmName();
+        String clientId = request.getClientId();
+
+        if (clientId == null || clientId.isBlank()) {
+            // 👇 If no client selected → assign dummy product
+            realmName = "default-realm";
+            clientId = "default-client";
+
+            System.out.println("⚠️ No product selected → assigning dummy client: " + clientId);
+
+            // Make sure dummy realm & client exist
+            createRealm(realmName, masterToken);
+            createClient(realmName, clientId, true, masterToken);
+        } else {
+            // 👇 Normal case → use user-selected product
+            createRealm(realmName, masterToken);
+            createClient(realmName, clientId, request.isPublicClient(), masterToken);
+        }
+
+        // ---------------- STEP 2: Handle client secret ----------------
+        String clientUUID = getClientUUID(realmName, clientId, masterToken);
         String clientSecret = null;
         if (!request.isPublicClient()) {
-            clientSecret = getClientSecret(request.getRealmName(), clientUUID, masterToken);
+            clientSecret = getClientSecret(realmName, clientUUID, masterToken);
             System.out.println("Generated client secret: " + clientSecret);
         }
+
+        // ---------------- STEP 3: Create user ----------------
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("username", request.getAdminUser().getUsername());
         userMap.put("email", request.getAdminUser().getEmail());
@@ -337,12 +360,16 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
         userMap.put("lastName", request.getAdminUser().getLastName());
         userMap.put("enabled", true);
         userMap.put("emailVerified", true);
+
         Map<String, Object> credentialMap = new HashMap<>();
         credentialMap.put("type", "password");
         credentialMap.put("value", request.getAdminUser().getPassword());
         credentialMap.put("temporary", false);
         userMap.put("credentials", List.of(credentialMap));
-        String userId = createUser(request.getRealmName(), masterToken, userMap);
+
+        String userId = createUser(realmName, masterToken, userMap);
+
+        // ---------------- STEP 4: Assign default roles ----------------
         List<String> builtInRoles = List.of(
                 "create-client",
                 "impersonation",
@@ -354,12 +381,14 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
                 "manage-users"
         );
         for (String roleName : builtInRoles) {
-            assignRealmManagementRoleToUser(request.getRealmName(), userId, roleName, masterToken);
+            assignRealmManagementRoleToUser(realmName, userId, roleName, masterToken);
         }
+
         if (clientSecret != null) {
             System.out.println("Use this secret for confidential client: " + clientSecret);
         }
-//        send api to centerlizedto store the signup code
+
+        // ---------------- STEP 5: Notify centralized DB ----------------
         try {
             RestTemplate restTemplate = new RestTemplate();
             String centralizedUrl = "http://localhost:8087/onboard";
@@ -374,8 +403,8 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
         } catch (Exception e) {
             System.err.println("⚠️ Failed to notify centralized project: " + e.getMessage());
         }
-
     }
+
 
     public String getRealmManagementClientId(String realm, String token) {
         String url = config.getBaseUrl() + "/admin/realms/" + realm + "/clients?clientId=realm-management";

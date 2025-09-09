@@ -5,7 +5,7 @@ import com.example.client_keycloak_apis.service.KeycloakClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -84,6 +84,25 @@ public class KeycloakClientController {
                 : authorizationHeader;
         return ResponseEntity.ok(keycloakClientService.getAllUsers(realm, token));
     }
+
+    // Create multiple client roles in realm
+    @PostMapping("/{realm}/clients/{clientName}/roles")
+    public ResponseEntity<String> createClientRoles(
+            @PathVariable String realm,
+            @PathVariable String clientName,
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody List<String> roleNames) {
+
+        String token = authorizationHeader.startsWith("Bearer ")
+                ? authorizationHeader.substring(7)
+                : authorizationHeader;
+
+        keycloakClientService.createClientRoles(realm, clientName, roleNames, token);
+
+        return ResponseEntity.ok("Roles created successfully");
+    }
+
+
 
     // Create a realm role
     @PostMapping("/{realm}/roles")

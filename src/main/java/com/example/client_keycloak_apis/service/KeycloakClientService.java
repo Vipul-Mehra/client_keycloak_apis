@@ -23,7 +23,7 @@ public interface KeycloakClientService {
 
     List<Map<String, Object>> getAllUsers(String realm, String token);
 
-    void createClientRole(String realm, String clientId, String clientSecret, String roleName, String token);
+    void createClientRoles(String realm, String clientName, List<String> roleNames, String token);
 
     void createRealmRole(String realm, String roleName, String clientId, String token);
 

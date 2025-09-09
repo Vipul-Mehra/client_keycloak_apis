@@ -172,17 +172,28 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
 
     // ---------------- ROLE ----------------
     @Override
-    public void createClientRole(String realm, String clientId, String clientSecret, String roleName, String token) {
-        String clientUUID = getClientUUID(realm, clientId, token);
+    public void createClientRoles(String realm, String clientName, List<String> roleNames, String token) {
+        // Resolve client UUID internally
+        String clientUUID = getClientUUID(realm, clientName, token);
         String url = config.getBaseUrl() + "/admin/realms/" + realm + "/clients/" + clientUUID + "/roles";
-        Map<String, Object> body = new HashMap<>();
-        body.put("name", roleName);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-        restTemplate.postForEntity(url, entity, String.class);
+
+        for (String roleName : roleNames) {
+            Map<String, Object> body = Map.of("name", roleName);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            try {
+                restTemplate.postForEntity(url, entity, String.class);
+                log.info("✅ Created role '{}' in client '{}'", roleName, clientName);
+            } catch (Exception e) {
+                log.error("❌ Failed to create role '{}' in client '{}'. Error: {}", roleName, clientName, e.getMessage());
+            }
+        }
     }
+
+
 
     @Override
     public void createRealmRole(String realm, String roleName, String clientId, String token) {

@@ -1,5 +1,6 @@
 package com.example.client_keycloak_apis.service.impl;
 
+import com.example.client_keycloak_apis.dto.RoleCreationRequest;
 import com.example.client_keycloak_apis.dto.SignupRequest;
 import com.example.client_keycloak_apis.model.KeycloakConfig;
 import com.example.client_keycloak_apis.service.KeycloakClientService;
@@ -172,8 +173,7 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
 
     // ---------------- ROLE ----------------
     @Override
-    public void createClientRoles(String realm, String clientName, List<String> roleNames, String token) {
-        // Resolve client UUID internally
+    public void createClientRoles(String realm, String clientName, List<RoleCreationRequest> roleRequests, String token) {
         String clientUUID = getClientUUID(realm, clientName, token);
         String url = config.getBaseUrl() + "/admin/realms/" + realm + "/clients/" + clientUUID + "/roles";
 
@@ -181,16 +181,36 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
 
-        for (String roleName : roleNames) {
-            Map<String, Object> body = Map.of("name", roleName);
+        for (RoleCreationRequest role : roleRequests) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("name", role.getName());
+            body.put("description", role.getDescription());
+
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             try {
                 restTemplate.postForEntity(url, entity, String.class);
-                log.info("✅ Created role '{}' in client '{}'", roleName, clientName);
+                log.info("✅ Created role '{}' in client '{}', url: {}, uri: {}",
+                        role.getName(), clientName, role.getUrl(), role.getUri());
             } catch (Exception e) {
-                log.error("❌ Failed to create role '{}' in client '{}'. Error: {}", roleName, clientName, e.getMessage());
+                log.error("❌ Failed to create role '{}' in client '{}': {}", role.getName(), clientName, e.getMessage());
             }
         }
+    }
+
+    private String getClientUUID(String realm, String clientName, String token) {
+        String url = config.getBaseUrl() + "/admin/realms/" + realm + "/clients?clientId=" + clientName;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        if (response.getBody() != null && !response.getBody().isEmpty()) {
+            return (String) response.getBody().get(0).get("id");
+        }
+        throw new RuntimeException("Client not found in Keycloak: " + clientName);
     }
 
 
@@ -268,19 +288,19 @@ public class KeycloakClientServiceImpl implements KeycloakClientService {
         }
     }
 
-    private String getClientUUID(String realm, String clientId, String token) {
-        String url = config.getBaseUrl() + "/admin/realms/" + realm + "/clients?clientId=" + clientId;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-                url, HttpMethod.GET, new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {}
-        );
-        if (!response.getBody().isEmpty()) {
-            return (String) response.getBody().get(0).get("id");
-        }
-        throw new RuntimeException("Client not found");
-    }
+//    private String getClientUUID(String realm, String clientId, String token) {
+//        String url = config.getBaseUrl() + "/admin/realms/" + realm + "/clients?clientId=" + clientId;
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setBearerAuth(token);
+//        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+//                url, HttpMethod.GET, new HttpEntity<>(headers),
+//                new ParameterizedTypeReference<>() {}
+//        );
+//        if (!response.getBody().isEmpty()) {
+//            return (String) response.getBody().get(0).get("id");
+//        }
+//        throw new RuntimeException("Client not found");
+//    }
 
     private String resolveUserId(String realm, String username, String token) {
         String url = config.getBaseUrl() + "/admin/realms/" + realm + "/users?username=" + username;

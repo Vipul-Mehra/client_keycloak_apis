@@ -1,5 +1,6 @@
 package com.example.client_keycloak_apis.service;
 
+import com.example.client_keycloak_apis.dto.RoleCreationRequest;
 import com.example.client_keycloak_apis.dto.SignupRequest;
 
 import java.util.List;
@@ -23,7 +24,8 @@ public interface KeycloakClientService {
 
     List<Map<String, Object>> getAllUsers(String realm, String token);
 
-    void createClientRoles(String realm, String clientName, List<String> roleNames, String token);
+    void createClientRoles(String realm, String clientName, List<RoleCreationRequest> roleRequests, String token);
+
 
     void createRealmRole(String realm, String roleName, String clientId, String token);
 

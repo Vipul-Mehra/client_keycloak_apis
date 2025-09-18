@@ -1,4 +1,4 @@
-package com.example.client_keycloak_apis.config;
+package com.paxaris.identity_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

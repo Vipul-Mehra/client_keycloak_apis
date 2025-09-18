@@ -1,6 +1,6 @@
-package com.example.client_keycloak_apis.controller;
+package com.paxaris.identity_service.controller;
 
-import com.example.client_keycloak_apis.dto.RoleCreationRequest;
+import com.paxaris.identity_service.dto.RoleCreationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;

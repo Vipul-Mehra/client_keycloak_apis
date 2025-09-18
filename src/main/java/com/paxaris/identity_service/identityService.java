@@ -1,13 +1,13 @@
-package com.example.client_keycloak_apis;
+package com.paxaris.identity_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class identityService {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(identityService.class, args);
 	}
 
 }

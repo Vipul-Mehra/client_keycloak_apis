@@ -1,4 +1,4 @@
-package com.example.client_keycloak_apis.model;
+package com.paxaris.identity_service.model;
 
 import lombok.Getter;
 import lombok.Setter;

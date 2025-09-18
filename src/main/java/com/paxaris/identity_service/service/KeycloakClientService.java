@@ -1,7 +1,7 @@
-package com.example.client_keycloak_apis.service;
+package com.paxaris.identity_service.service;
 
-import com.example.client_keycloak_apis.dto.RoleCreationRequest;
-import com.example.client_keycloak_apis.dto.SignupRequest;
+import com.paxaris.identity_service.dto.RoleCreationRequest;
+import com.paxaris.identity_service.dto.SignupRequest;
 
 import java.util.List;
 import java.util.Map;

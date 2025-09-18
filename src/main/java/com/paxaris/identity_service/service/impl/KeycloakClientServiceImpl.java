@@ -1,9 +1,9 @@
-package com.example.client_keycloak_apis.service.impl;
+package com.paxaris.identity_service.service.impl;
 
-import com.example.client_keycloak_apis.dto.RoleCreationRequest;
-import com.example.client_keycloak_apis.dto.SignupRequest;
-import com.example.client_keycloak_apis.model.KeycloakConfig;
-import com.example.client_keycloak_apis.service.KeycloakClientService;
+import com.paxaris.identity_service.dto.RoleCreationRequest;
+import com.paxaris.identity_service.dto.SignupRequest;
+import com.paxaris.identity_service.model.KeycloakConfig;
+import com.paxaris.identity_service.service.KeycloakClientService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

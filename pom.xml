@@ -8,11 +8,11 @@
 		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>client_keycloak_apis</artifactId>
+	<groupId>com.paxaris</groupId>
+	<artifactId>identity_service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>client_keycloak_apis</name>
-	<description>Demo project for Spring Boot</description>
+	<name>identity_service</name>
+	<description>identity_service</description>
 	<url/>
 	<licenses>
 		<license/>

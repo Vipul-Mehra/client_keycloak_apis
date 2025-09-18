@@ -1,6 +1,6 @@
-package com.example.client_keycloak_apis.service;
+package com.paxaris.identity_service.service;
 
-import com.example.client_keycloak_apis.dto.RoleCreationRequest;
+import com.paxaris.identity_service.dto.RoleCreationRequest;
 
 public interface CrudKeycloakService {
 

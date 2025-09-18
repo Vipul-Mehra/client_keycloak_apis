@@ -1,4 +1,4 @@
-package com.example.client_keycloak_apis.dto;
+package com.paxaris.identity_service.dto;
 
 import lombok.Data;
 
